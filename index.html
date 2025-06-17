@@ -6,12 +6,31 @@
 </head>
 <body>
     <div id="game-container">
-        <div id="game-board"></div>
-        <div id="ui-container">
-            <div id="score">Score: 0</div>
-            <button id="start-button">Start Game</button>
-            <div id="game-over-message" style="display: none;">Game Over</div>
-            <div id="win-message" style="display: none;">You Win!</div>
+        <!-- Username Input Area -->
+        <div id="username-area">
+            <h2>Enter Your Name:</h2>
+            <input type="text" id="username-input" maxlength="15">
+            <button id="submit-username-button">Play Game</button>
+        </div>
+
+        <!-- Game Board Area (initially hidden) -->
+        <div id="game-board-area" style="display: none;">
+            <div id="game-board"></div>
+            <div id="ui-container">
+                <div id="score">Score: 0</div>
+                <div id="current-player">Player: </div> <!-- To display current player's name -->
+                <button id="start-button">Start Game</button> <!-- Will become Restart -->
+                <div id="game-over-message" style="display: none;">Game Over</div>
+                <div id="win-message" style="display: none;">You Win!</div>
+            </div>
+        </div>
+
+        <!-- High Scores Display Area (initially hidden or shown after game) -->
+        <div id="high-scores-area" style="display: none;">
+            <h2>High Scores:</h2>
+            <ul id="high-scores-list">
+                <!-- High scores will be populated here by JavaScript -->
+            </ul>
         </div>
     </div>
     <script src="script.js"></script>
