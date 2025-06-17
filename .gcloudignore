@@ -1,0 +1,44 @@
+# This file tells gcloud CLI to ignore these files and directories when
+# uploading source to Google Cloud. This is especially important for
+# `gcloud builds submit` and `gcloud app deploy`.
+
+# Python virtual environment
+venv/
+*.pyenv
+
+# Python bytecode and cache
+*.pyc
+__pycache__/
+
+# Git directory and related files
+.git/
+.gitignore
+.gitattributes
+
+# IDE and editor specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local instance/config files (if any)
+instance/
+*.local
+*.db # If using local SQLite for testing, for example
+
+# Docker related files if building locally first (though Dockerfile itself IS needed)
+# For `gcloud builds submit`, the Docker context is uploaded, so Dockerfile is included.
+# If you had other local Docker build artifacts, you might list them.
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Test files and directories (if not needed in the deployed app)
+# tests/
+# *.test.py
+# pytest.ini
+# .coveragerc
+
+# README.md is often fine to include, but can be ignored if large or not needed.
+# README.md
