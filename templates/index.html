@@ -2,7 +2,7 @@
 <html>
 <head>
     <title>JS Invaders</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div id="game-container">
@@ -33,6 +33,6 @@
             </ul>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
