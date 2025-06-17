@@ -80,15 +80,42 @@ function initInvaders() {
 
 // Event Listener for Controls
 document.addEventListener('keydown', (event) => {
-    // Keyboard controls are active only if the game is running
+    if (!gameRunning) {
+        // If game not running, spacebar might be used to start game via button
+        // Allow default behavior if startButton is focused and space is pressed
+        if (event.key === ' ' || event.key.toLowerCase() === 'spacebar') {
+            if (document.activeElement === startButton) {
+                // Allow button click behavior to proceed via spacebar
+                return;
+            }
+        }
+        // Potentially, other keys could be allowed for non-game actions here
+    }
+
+    // If game IS running, handle game actions
     if (gameRunning) {
         if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') {
             movePlayer(-playerSpeed);
         } else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
             movePlayer(playerSpeed);
         } else if (event.key === ' ' || event.key.toLowerCase() === 'spacebar') {
+            // Prevent default spacebar action (e.g., scrolling or clicking a focused button)
+            event.preventDefault();
+
+            // If the start button somehow has focus, blur it.
+            if (startButton && document.activeElement === startButton) {
+                startButton.blur();
+            }
             fireProjectile();
         }
+    } else {
+        // If game is NOT running, and space is pressed NOT on the start button
+        // (e.g. focus is elsewhere, or it's the first interaction)
+        // We might want space to trigger game start if the button is the logical default action.
+        // This is tricky. The current `startButton.addEventListener('click', ...)`
+        // and `startGame()` with its confirm logic is better for explicit starts.
+        // So, if game is not running, spacebar should primarily interact with focused elements.
+        // The `event.preventDefault()` above is only for when `gameRunning` is true.
     }
 });
 
@@ -265,19 +292,9 @@ function initGameState() {
 
     projectiles.forEach(p => p.element.remove());
     projectiles = [];
-
-    // Button text is handled by startGame and stopGame directly.
-    // If stopGame wasn't called (e.g. very first load), initial text is set at the bottom.
 }
 
 function startGame() {
-    // If game is already running and user doesn't want to restart, exit.
-    // This specific check for confirm was moved to the button's event listener
-    // to avoid confirm dialog when starting for the very first time.
-    // if (gameRunning && !confirm("Restart game?")) {
-    //     return;
-    // }
-
     initGameState();
     initPlayer();
     initInvaders();
