@@ -2,14 +2,20 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh; /* Use min-height to ensure visibility even if content is small */
     background-color: #f0f0f0;
     margin: 0;
     font-family: Arial, sans-serif;
+    padding: 20px; /* Add some padding to the body */
+    box-sizing: border-box;
 }
 
 #game-container {
     text-align: center;
+    background-color: #fff; /* Give game-container a background */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
 }
 
 #game-board {
@@ -17,12 +23,16 @@ body {
     height: 400px; /* Game board height */
     border: 1px solid #000;
     position: relative; /* For absolute positioning of game elements */
-    background-color: #fff;
+    background-color: #eee; /* Slightly different background for game board itself */
     overflow: hidden; /* Prevents elements from going outside the board */
 }
 
 #ui-container {
     margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 5px;
+    background-color: #fafafa;
 }
 
 #score {
@@ -30,55 +40,162 @@ body {
     margin-bottom: 10px;
 }
 
-#start-button {
+#start-button { /* This is the Start/Restart button during gameplay */
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
+    background-color: #007bff; /* Blue for primary action */
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+#start-button:hover {
+    background-color: #0056b3;
 }
 
+
+/* Username Area Styling */
+#username-area {
+    margin-bottom: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+#username-area h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+#username-input {
+    padding: 8px;
+    margin-right: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+#submit-username-button { /* This is the "Play Game" button */
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #28a745; /* Green */
+    color: white;
+    border: none;
+    border-radius: 4px;
+}
+
+#submit-username-button:hover {
+    background-color: #218838;
+}
+
+/* Game Board Area - container for board and its UI */
+#game-board-area {
+    margin-bottom: 20px;
+}
+
+
+#current-player {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #555;
+    font-weight: bold;
+}
+
+
+/* High Scores Area Styling */
+#high-scores-area {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+}
+
+#high-scores-area h2 {
+    margin-top: 0;
+    color: #333;
+}
+
+#high-scores-list {
+    list-style-type: none;
+    padding: 0;
+    max-height: 200px; /* Example max height */
+    overflow-y: auto; /* Scroll if list is too long */
+}
+
+#high-scores-list li {
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    font-size: 16px;
+    display: flex;
+    justify-content: space-between;
+}
+
+#high-scores-list li:last-child {
+    border-bottom: none;
+}
+
+#high-scores-list .score-name { /* Class for the name part of a score entry */
+    font-weight: bold;
+}
+
+#high-scores-list .score-value { /* Class for the value part of a score entry */
+    color: #007bff;
+}
+
+
+/* Game Messages Styling */
 #game-over-message, #win-message {
     font-size: 24px;
-    color: red;
     margin-top: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    color: white; /* Common text color for messages */
+}
+#game-over-message {
+    background-color: #dc3545; /* Red */
+}
+#win-message {
+    background-color: #28a745; /* Green */
 }
 
-/* Player, Invader, and Projectile styles will be added here later */
+/* Player, Invader, and Projectile styles from previous steps */
 .player {
     position: absolute;
-    font-size: 24px; /* Player character size */
-    color: blue; /* Player character color */
-    /* Centering the character within its div if needed */
+    font-size: 24px;
+    color: blue;
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 20px; /* Adjust width based on character and font size */
-    height: 20px; /* Adjust height based on character and font size */
+    width: 20px;
+    height: 20px;
 }
 
 .invader {
     position: absolute;
-    font-size: 20px; /* Invader character size */
-    color: red;    /* Invader character color */
-    width: 20px;   /* Adjust if necessary */
-    height: 20px;  /* Adjust if necessary */
+    font-size: 20px;
+    color: red;
+    width: 20px;
+    height: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* Optional: if you want to style the container */
-.invader-container {
-    position: relative; /* Or absolute if you want to position it relative to gameBoard */
+.invader-container { /* Optional styling for the invader group */
+    position: relative;
     width: 100%;
-    height: auto;
+    height: auto; /* Or fixed height if you prefer */
 }
 
 .projectile {
     position: absolute;
-    font-size: 18px; /* Projectile character size */
-    color: green;    /* Projectile character color */
-    width: 5px;    /* Adjust if necessary */
-    height: 15px;  /* Adjust if necessary */
+    font-size: 18px;
+    color: green;
+    width: 5px;
+    height: 15px;
     display: flex;
     justify-content: center;
     align-items: center;

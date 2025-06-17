@@ -8,6 +8,13 @@ const scoreDisplay = document.getElementById('score');
 const gameOverMessage = document.getElementById('game-over-message');
 const winMessage = document.getElementById('win-message');
 const startButton = document.getElementById('start-button');
+const usernameArea = document.getElementById('username-area');
+const usernameInput = document.getElementById('username-input');
+const submitUsernameButton = document.getElementById('submit-username-button');
+const gameBoardArea = document.getElementById('game-board-area');
+const highScoresArea = document.getElementById('high-scores-area');
+const currentPlayerDisplay = document.getElementById('current-player');
+const highScoresList = document.getElementById('high-scores-list');
 
 // Player properties
 let playerPosition = { x: 280, y: 360 };
@@ -23,7 +30,7 @@ const invaderDropSpeed = 10;
 let invaderDirection = 1;
 const invaderContainer = document.createElement('div');
 invaderContainer.classList.add('invader-container');
-gameBoard.appendChild(invaderContainer);
+if (gameBoard) gameBoard.appendChild(invaderContainer);
 
 // Projectile properties
 const projectileChar = '|';
@@ -33,23 +40,28 @@ const projectileSpeed = 15;
 // Game State Variables
 let score = 0;
 let gameRunning = false;
+let currentUsername = '';
 
 // Initialize Player
 function initPlayer() {
+    if (!gameBoard) return;
     const playerWidth = player.offsetWidth || 20;
     const gameBoardWidth = gameBoard.offsetWidth;
-    playerPosition = {
-        x: (gameBoardWidth / 2) - (playerWidth / 2),
-        y: gameBoard.offsetHeight - (player.offsetHeight || 20) - 10
-    };
-    player.style.left = playerPosition.x + 'px';
-    player.style.top = playerPosition.y + 'px';
-    if (!gameBoard.contains(player)) {
-        gameBoard.appendChild(player);
+    if (gameBoardWidth > 0 && gameBoard.offsetHeight > 0) {
+        playerPosition = {
+            x: (gameBoardWidth / 2) - (playerWidth / 2),
+            y: gameBoard.offsetHeight - (player.offsetHeight || 20) - 10
+        };
+        player.style.left = playerPosition.x + 'px';
+        player.style.top = playerPosition.y + 'px';
+        if (!gameBoard.contains(player)) {
+            gameBoard.appendChild(player);
+        }
     }
 }
 
 function movePlayer(dx) {
+    if (!gameRunning || !gameBoard) return;
     const newX = playerPosition.x + dx;
     const playerWidth = player.offsetWidth || 20;
     if (newX >= 0 && newX <= (gameBoard.offsetWidth - playerWidth)) {
@@ -60,6 +72,7 @@ function movePlayer(dx) {
 
 // Initialize Invaders
 function initInvaders() {
+    if (!invaderContainer) return;
     invaderContainer.innerHTML = '';
     invaders = [];
     for (let i = 0; i < invaderRows; i++) {
@@ -78,64 +91,83 @@ function initInvaders() {
     }
 }
 
-// Event Listener for Controls
+// Username Handling & UI Switching
+function handleSubmitUsername() {
+    if (!usernameInput || !usernameArea || !gameBoardArea || !highScoresArea || !currentPlayerDisplay || !startButton) return;
+    const username = usernameInput.value.trim();
+    if (username === '') {
+        alert('Please enter a username to play!');
+        return;
+    }
+    currentUsername = username;
+    currentPlayerDisplay.textContent = 'Player: ' + currentUsername;
+
+    usernameArea.style.display = 'none';
+    gameBoardArea.style.display = 'block';
+
+    // Display current high scores below the game area when username is submitted
+    displayHighScores();
+    highScoresArea.style.display = 'block'; // Make it visible initially with game board
+
+    startButton.textContent = 'Start Game';
+    startButton.focus();
+    updateScoreDisplay();
+}
+
+if (submitUsernameButton) {
+    submitUsernameButton.addEventListener('click', handleSubmitUsername);
+}
+if (usernameInput) {
+    usernameInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            handleSubmitUsername();
+        }
+    });
+}
+
+// Event Listener for Game Controls (keydown)
 document.addEventListener('keydown', (event) => {
     if (!gameRunning) {
-        // If game not running, spacebar might be used to start game via button
-        // Allow default behavior if startButton is focused and space is pressed
         if (event.key === ' ' || event.key.toLowerCase() === 'spacebar') {
             if (document.activeElement === startButton) {
-                // Allow button click behavior to proceed via spacebar
                 return;
             }
         }
-        // Potentially, other keys could be allowed for non-game actions here
     }
 
-    // If game IS running, handle game actions
     if (gameRunning) {
         if (event.key === 'ArrowLeft' || event.key.toLowerCase() === 'a') {
             movePlayer(-playerSpeed);
         } else if (event.key === 'ArrowRight' || event.key.toLowerCase() === 'd') {
             movePlayer(playerSpeed);
         } else if (event.key === ' ' || event.key.toLowerCase() === 'spacebar') {
-            // Prevent default spacebar action (e.g., scrolling or clicking a focused button)
             event.preventDefault();
-
-            // If the start button somehow has focus, blur it.
             if (startButton && document.activeElement === startButton) {
                 startButton.blur();
             }
             fireProjectile();
         }
-    } else {
-        // If game is NOT running, and space is pressed NOT on the start button
-        // (e.g. focus is elsewhere, or it's the first interaction)
-        // We might want space to trigger game start if the button is the logical default action.
-        // This is tricky. The current `startButton.addEventListener('click', ...)`
-        // and `startGame()` with its confirm logic is better for explicit starts.
-        // So, if game is not running, spacebar should primarily interact with focused elements.
-        // The `event.preventDefault()` above is only for when `gameRunning` is true.
     }
 });
 
-// Event listener for the start button
+// Event listener for the start/restart game button (click)
 if (startButton) {
     startButton.addEventListener('click', () => {
-        if (!gameRunning) {
-            startGame();
-        } else {
-            // If game is running, confirm then restart
+        if (gameRunning) {
             if (confirm("Restart game?")) {
-                stopGame();
-                startGame();
+                // stopGame(); // stopGame is implicitly called if game over/win leads here.
+                            // For direct restart, startGame handles the reset.
+                startGame(); // startGame includes reset logic
             }
+        } else {
+            startGame();
         }
     });
 }
 
 
 function fireProjectile() {
+    if (!gameRunning || !gameBoard) return;
     const projectile = document.createElement('div');
     projectile.classList.add('projectile');
     projectile.textContent = projectileChar;
@@ -165,13 +197,17 @@ function updateScore(points) {
 }
 
 function updateScoreDisplay() {
-    scoreDisplay.textContent = 'Score: ' + score;
+    if (scoreDisplay) scoreDisplay.textContent = 'Score: ' + score;
 }
 
 function checkWinCondition() {
+    if (!gameRunning || !invaders || invaders.length === 0) return;
+
     let allInvadersDead = true;
     for (let i = 0; i < invaderRows; i++) {
+        if (!invaders[i]) continue;
         for (let j = 0; j < invaderCols; j++) {
+            if (!invaders[i][j]) continue;
             if (invaders[i][j].alive) {
                 allInvadersDead = false;
                 break;
@@ -181,13 +217,14 @@ function checkWinCondition() {
     }
 
     if (allInvadersDead) {
-        winMessage.style.display = 'block';
-        stopGame(); // This will also update button text
+        if (winMessage) winMessage.style.display = 'block';
+        stopGame();
         console.log("You Win!");
     }
 }
 
 function moveProjectiles() {
+    if (!gameRunning) return;
     for (let i = projectiles.length - 1; i >= 0; i--) {
         const p = projectiles[i];
         p.y -= projectileSpeed;
@@ -231,11 +268,14 @@ function moveProjectiles() {
 }
 
 function moveInvaders() {
+    if (!gameRunning || !gameBoard) return;
     let hitEdge = false;
     let shouldGameOver = false;
 
     for (let i = 0; i < invaderRows; i++) {
+        if (!invaders[i]) continue;
         for (let j = 0; j < invaderCols; j++) {
+            if (!invaders[i][j]) continue;
             if (invaders[i][j].alive) {
                 const invader = invaders[i][j];
                 invader.x += invaderSpeed * invaderDirection;
@@ -257,7 +297,9 @@ function moveInvaders() {
     if (hitEdge) {
         invaderDirection *= -1;
         for (let i = 0; i < invaderRows; i++) {
+             if (!invaders[i]) continue;
             for (let j = 0; j < invaderCols; j++) {
+                if (!invaders[i][j]) continue;
                 if (invaders[i][j].alive) {
                     const invader = invaders[i][j];
                     invader.y += invaderDropSpeed;
@@ -272,8 +314,9 @@ function moveInvaders() {
     }
 
     if (shouldGameOver) {
-        gameOverMessage.style.display = 'block';
-        stopGame(); // This will also update button text
+        if (gameOverMessage) gameOverMessage.style.display = 'block';
+        stopGame();
+        console.log("Game Over!");
     }
 }
 
@@ -284,37 +327,136 @@ function gameLoop(timestamp) {
     requestAnimationFrame(gameLoop);
 }
 
+// Initialize Game State (called by startGame)
 function initGameState() {
     score = 0;
     updateScoreDisplay();
-    gameOverMessage.style.display = 'none';
-    winMessage.style.display = 'none';
+    if (gameOverMessage) gameOverMessage.style.display = 'none';
+    if (winMessage) winMessage.style.display = 'none';
+    if (highScoresArea) highScoresArea.style.display = 'none'; // Hide high scores during game setup
 
     projectiles.forEach(p => p.element.remove());
     projectiles = [];
+
+    if (currentUsername && currentPlayerDisplay) {
+        currentPlayerDisplay.textContent = 'Player: ' + currentUsername;
+    }
 }
 
+// Start Game
 function startGame() {
-    initGameState();
-    initPlayer();
-    initInvaders();
+    if (!currentUsername) {
+        alert("Error: No username set. Please enter username first.");
+        if (usernameArea) usernameArea.style.display = 'block';
+        if (gameBoardArea) gameBoardArea.style.display = 'none';
+        if (highScoresArea) highScoresArea.style.display = 'block'; // Show scores if returning to username
+        return;
+    }
+
+    initGameState(); // Resets score, messages, hides high scores area
+
+    if (invaderContainer) invaderContainer.innerHTML = ''; // Clear previous invaders
+    invaders = []; // Reset invaders array
+    initInvaders(); // Create new invaders
+
+    initPlayer(); // Reset player position
 
     gameRunning = true;
     if (startButton) startButton.textContent = 'Restart Game';
+
+    if (gameBoardArea) gameBoardArea.style.display = 'block'; // Ensure game area is visible
+    if (usernameArea) usernameArea.style.display = 'none'; // Ensure username area is hidden
+    if (highScoresArea) highScoresArea.style.display = 'none'; // Ensure high scores are hidden during gameplay
+
     requestAnimationFrame(gameLoop);
-    console.log("Game started!");
+    console.log("Game started for user:", currentUsername);
 }
 
+// Stop Game
 function stopGame() {
+    // if (!gameRunning) return; // This was in the prompt, but might prevent stopGame if called sequentially.
+                               // Game logic (win/loss) should ensure it's called when gameRunning is true.
+                               // If called from button when gameRunning is already false, it's fine.
     gameRunning = false;
     if (startButton) startButton.textContent = 'Start Game';
     console.log("Game stopped!");
+
+    if (currentUsername && typeof score === 'number') {
+        saveHighScore(currentUsername, score);
+    }
+    displayHighScores();
+    if (highScoresArea) highScoresArea.style.display = 'block';
 }
 
-// Initial setup
-initPlayer();
-initInvaders();
-updateScoreDisplay();
-if (startButton) {
+// High Score Management
+const MAX_HIGH_SCORES = 10;
+
+function getHighScores() {
+    try {
+        const scoresJSON = localStorage.getItem('jsInvadersHighScores');
+        return scoresJSON ? JSON.parse(scoresJSON) : [];
+    } catch (e) {
+        console.error("Error getting high scores from localStorage:", e);
+        return [];
+    }
+}
+
+function saveHighScore(username, scoreValue) {
+    if (!username || typeof scoreValue !== 'number') {
+        console.error("Invalid data for saveHighScore:", username, scoreValue);
+        return;
+    }
+    const newScoreEntry = { name: username, score: scoreValue };
+    let highScores = getHighScores();
+    highScores.push(newScoreEntry);
+    highScores.sort((a, b) => b.score - a.score);
+    highScores = highScores.slice(0, MAX_HIGH_SCORES);
+    try {
+        localStorage.setItem('jsInvadersHighScores', JSON.stringify(highScores));
+    } catch (e) {
+        console.error("Error saving high scores to localStorage:", e);
+    }
+}
+
+function displayHighScores() {
+    if (!highScoresList || !highScoresArea) {
+        console.error("High score display elements not found.");
+        return;
+    }
+    const scores = getHighScores();
+    highScoresList.innerHTML = '';
+    if (scores.length === 0) {
+        highScoresList.innerHTML = '<li>No high scores yet!</li>';
+    } else {
+        scores.forEach(scoreEntry => {
+            const li = document.createElement('li');
+            const nameSpan = document.createElement('span');
+            nameSpan.classList.add('score-name');
+            nameSpan.textContent = scoreEntry.name;
+            const scoreSpan = document.createElement('span');
+            scoreSpan.classList.add('score-value');
+            scoreSpan.textContent = scoreEntry.score;
+            li.appendChild(nameSpan);
+            li.appendChild(scoreSpan);
+            highScoresList.appendChild(li);
+        });
+    }
+}
+
+// Initial App Setup
+function initializeApp() {
+    if (!usernameArea || !gameBoardArea || !highScoresArea || !scoreDisplay || !startButton) {
+        console.error("One or more critical UI elements are missing from the DOM. Cannot initialize app.");
+        return;
+    }
+    usernameArea.style.display = 'block';
+    gameBoardArea.style.display = 'none';
+
+    displayHighScores(); // Display high scores initially
+    highScoresArea.style.display = 'block'; // Show them below username input
+
+    scoreDisplay.textContent = 'Score: 0';
     startButton.textContent = 'Start Game';
 }
+
+initializeApp();
