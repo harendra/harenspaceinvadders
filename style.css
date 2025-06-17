@@ -1,0 +1,85 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+#game-container {
+    text-align: center;
+}
+
+#game-board {
+    width: 600px; /* Game board width */
+    height: 400px; /* Game board height */
+    border: 1px solid #000;
+    position: relative; /* For absolute positioning of game elements */
+    background-color: #fff;
+    overflow: hidden; /* Prevents elements from going outside the board */
+}
+
+#ui-container {
+    margin-top: 10px;
+}
+
+#score {
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+#start-button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#game-over-message, #win-message {
+    font-size: 24px;
+    color: red;
+    margin-top: 10px;
+}
+
+/* Player, Invader, and Projectile styles will be added here later */
+.player {
+    position: absolute;
+    font-size: 24px; /* Player character size */
+    color: blue; /* Player character color */
+    /* Centering the character within its div if needed */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 20px; /* Adjust width based on character and font size */
+    height: 20px; /* Adjust height based on character and font size */
+}
+
+.invader {
+    position: absolute;
+    font-size: 20px; /* Invader character size */
+    color: red;    /* Invader character color */
+    width: 20px;   /* Adjust if necessary */
+    height: 20px;  /* Adjust if necessary */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Optional: if you want to style the container */
+.invader-container {
+    position: relative; /* Or absolute if you want to position it relative to gameBoard */
+    width: 100%;
+    height: auto;
+}
+
+.projectile {
+    position: absolute;
+    font-size: 18px; /* Projectile character size */
+    color: green;    /* Projectile character color */
+    width: 5px;    /* Adjust if necessary */
+    height: 15px;  /* Adjust if necessary */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
